@@ -8,3 +8,7 @@ class User(models.Model):
     creat_time = models.IntegerField()
     last_active_time = models.IntegerField(default=0)
     last_active_ip = models.TextField(null=True)
+
+class DNSPodAccount(models.Model):
+    username = models.TextField()
+    password = models.TextField()

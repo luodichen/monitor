@@ -8,5 +8,6 @@ from django.conf.urls import url
 
 urlpatterns = [
     url(r'^test/$', 'api.views.test'),
-    url(r'active/$', 'api.views.active'),
+    url(r'^active/$', 'api.views.active'),
+    url(r'^dnspod/set_account/$', 'api.views.dnspod_setup'),
 ]
