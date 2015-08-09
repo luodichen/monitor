@@ -42,7 +42,7 @@ class DomainRecord(object):
     def __str__(self):
         return repr(self.data)
 
-class DnsPod(object):
+class DNSPod(object):
     URL                 = 'https://dnsapi.cn'
     RECORD_INFO         = URL + '/Record.Info'
     DDNS                = URL + '/Record.Ddns'

@@ -3,24 +3,41 @@ import time
 from models import DNSPodAccount
 from models import User
 from lib.response import JsonResponse
+from lib.dnspod import DNSPod, DNSPodError
 
 def active(request):
-    response = {'code': 0, 'text': 'ok'}
+    response = {'code': 0, 'text': 'ok', 'ddns_update': False}
     
     token = request.REQUEST.get('token')
     if token is None:
         response['code'], response['text'] = -1, 'bad request'
         return JsonResponse(response)
     
-    ip_addr = request.META['REMOTE_ADDR']
+    ip_addr = request.META['HTTP_X_FORWARDED_FOR'] if 'HTTP_X_FORWARDED_FOR' \
+                in request.META else request.META['REMOTE_ADDR']
+    response['ip_address'] = ip_addr
     
     try:
         user = User.objects.get(token=token)
         user.last_active_time = int(time.time())
         user.last_active_ip = ip_addr
         user.save()
+        
+        if user.sub_domain_id is not None and '' != user.sub_domain_id and \
+                (ip_addr != user.ddns_ip or user.ddns_update_time is None or \
+                 int(time.time()) - user.ddns_update_time > 600):
+            response['ddns_update'] = True
+            dnspod_account = DNSPodAccount.objects.get()
+            dnspod = DNSPod(dnspod_account.username, dnspod_account.password)
+            user.ddns_ip = dnspod.ddns(user.domain.domain_id, user.sub_domain_id, ip_addr)
+            user.ddns_update_time = int(time.time())
+            
+            user.save()
     except User.DoesNotExist:
-        response['code'], response['text'] = 1, 'token not exists'
+        response['code'], response['text'] = 1, 'token not exists' 
+    except DNSPodError, e:
+        response['code'] = 2
+        response['text'] = str(e)
     
     return JsonResponse(response)
 
