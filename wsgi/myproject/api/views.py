@@ -13,7 +13,8 @@ def active(request):
         response['code'], response['text'] = -1, 'bad request'
         return JsonResponse(response)
     
-    ip_addr = request.META['REMOTE_ADDR']
+    ip_addr = request.META['HTTP_X_FORWARDED_FOR'] if 'HTTP_X_FORWARDED_FOR' \
+                in request.META else request.META['REMOTE_ADDR']
     response['ip_address'] = ip_addr
     
     try:
