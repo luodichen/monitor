@@ -1,6 +1,6 @@
 import json
 import time
-from libs.response import JsonResponse
+from lib.response import JsonResponse
 from models import User
 
 def active(request):
