@@ -1,7 +1,7 @@
 import json
 import time
+from libs.response import JsonResponse
 from models import User
-from response import JsonResponse
 
 def active(request):
     response = {'code': 0, 'text': 'ok'}
